@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/router/app_router.dart';
 import '../../../../../shared/constants/app_constants.dart';
 
 @RoutePage()
@@ -28,7 +29,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // 这里暂时导航到主页
     if (mounted) {
       // 通过Router进行导航
-      // context.router.replace(const HomeRoute());
+      context.router.replace(const MainRoute());
     }
   }
 
