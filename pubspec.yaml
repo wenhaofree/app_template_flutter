@@ -30,10 +30,44 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  flutter_screenutil: ^5.9.0
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  
+  # 状态管理
+  flutter_riverpod: ^2.5.1
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+  
+  # 路由管理
+  auto_route: ^7.8.5
+  
+  # 网络请求
+  dio: ^5.4.2
+  connectivity_plus: ^5.0.2
+  
+  # 本地存储
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # 依赖注入
+  get_it: ^7.6.7
+  
+  # 工具类
+  intl: ^0.19.0
+  logger: ^2.0.2+1
+  path_provider: ^2.1.2
+  device_info_plus: ^9.1.2
+  package_info_plus: ^5.0.1
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +79,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  
+  # 代码生成
+  build_runner: ^2.4.8
+  freezed: ^2.4.7
+  json_serializable: ^6.7.1
+  auto_route_generator: ^7.3.2
+  hive_generator: ^2.0.1
+  flutter_gen_runner: ^5.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -87,3 +129,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # assets 配置
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+    - assets/translations/
