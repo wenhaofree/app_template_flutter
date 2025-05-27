@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../shared/widgets/app_button.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
+import '../../../../../core/router/app_router.dart';
+import '../providers/auth_provider.dart';
 
 @RoutePage()
 class LoginScreen extends ConsumerStatefulWidget {
@@ -18,7 +20,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -27,26 +28,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  @override
+  void initState() {
+    super.initState();
+    // 监听认证状态变化
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listen<AuthState>(authProvider, (previous, next) {
+        if (next.isAuthenticated && !next.isLoading) {
+          // 登录成功，导航到主页
+          context.router.replace(const MainRoute());
+        }
+
+        if (next.error != null) {
+          // 显示错误信息
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(next.error!),
+              backgroundColor: Colors.red,
+            ),
+          );
+          // 清除错误
+          ref.read(authProvider.notifier).clearError();
+        }
+      });
+    });
+  }
+
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // 模拟登录请求
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isLoading = false;
-        });
-
-        // 登录成功后导航到主页
-        // context.router.replace(const HomeRoute());
-      });
+      await ref.read(authProvider.notifier).login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('登录'),
@@ -74,6 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   isRequired: true,
+                  enabled: !authState.isLoading,
                 ),
                 SizedBox(height: 16.h),
                 AppTextField(
@@ -84,12 +105,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   isPassword: true,
                   isRequired: true,
                   autofillHints: const [AutofillHints.password],
+                  enabled: !authState.isLoading,
                 ),
                 SizedBox(height: 8.h),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {
+                    onPressed: authState.isLoading ? null : () {
                       // 导航到忘记密码页面
                       // context.router.push(const ForgotPasswordRoute());
                     },
@@ -99,10 +121,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(height: 24.h),
                 AppButton(
                   text: '登录',
-                  isLoading: _isLoading,
+                  isLoading: authState.isLoading,
                   isFullWidth: true,
                   size: AppButtonSize.large,
-                  onPressed: _login,
+                  onPressed: authState.isLoading ? null : _login,
                 ),
                 SizedBox(height: 24.h),
                 Row(
@@ -110,7 +132,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     const Text('还没有账号？'),
                     TextButton(
-                      onPressed: () {
+                      onPressed: authState.isLoading ? null : () {
                         // 导航到注册页面
                         // context.router.push(const RegisterRoute());
                       },
@@ -125,4 +147,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
-} 
+}

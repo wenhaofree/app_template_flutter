@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 主题模式提供者
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+import '../providers/app_providers.dart';
 
 /// 应用主题配置
 class AppTheme {
@@ -116,11 +115,15 @@ class AppTheme {
 
   /// 切换主题模式
   static void toggleThemeMode(WidgetRef ref) {
-    final currentMode = ref.read(themeModeProvider);
-    if (currentMode == ThemeMode.light) {
-      ref.read(themeModeProvider.notifier).state = ThemeMode.dark;
-    } else {
-      ref.read(themeModeProvider.notifier).state = ThemeMode.light;
-    }
+    final currentMode = ref.read(appProvider).themeMode;
+    final newMode = currentMode == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
+    ref.read(appProvider.notifier).setThemeMode(newMode);
+  }
+
+  /// 设置主题模式
+  static void setThemeMode(WidgetRef ref, ThemeMode themeMode) {
+    ref.read(appProvider.notifier).setThemeMode(themeMode);
   }
 }

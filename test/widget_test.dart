@@ -1,30 +1,90 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:app_template_flutter/features/auth/domain/usecases/login_usecase.dart';
+import 'package:app_template_flutter/features/auth/domain/repositories/auth_repository.dart';
+import 'package:app_template_flutter/features/auth/domain/entities/user.dart';
+import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
 
-import 'package:app_template_flutter/main.dart';
+import 'widget_test.mocks.dart';
 
+@GenerateMocks([AuthRepository])
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('LoginUseCase Tests', () {
+    late LoginUseCase loginUseCase;
+    late MockAuthRepository mockAuthRepository;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    setUp(() {
+      mockAuthRepository = MockAuthRepository();
+      loginUseCase = LoginUseCase(mockAuthRepository);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('should return User when login is successful', () async {
+      // Arrange
+      const email = 'test@example.com';
+      const password = 'password123';
+      const user = User(
+        id: '1',
+        email: email,
+        name: 'Test User',
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      when(mockAuthRepository.login(email, password))
+          .thenAnswer((_) async => user);
+
+      // Act
+      final result = await loginUseCase(email, password);
+
+      // Assert
+      expect(result, equals(user));
+      verify(mockAuthRepository.login(email, password)).called(1);
+    });
+
+    test('should throw ArgumentError when email is empty', () async {
+      // Arrange
+      const email = '';
+      const password = 'password123';
+
+      // Act & Assert
+      expect(
+        () => loginUseCase(email, password),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('should throw ArgumentError when password is empty', () async {
+      // Arrange
+      const email = 'test@example.com';
+      const password = '';
+
+      // Act & Assert
+      expect(
+        () => loginUseCase(email, password),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('should throw ArgumentError when email format is invalid', () async {
+      // Arrange
+      const email = 'invalid-email';
+      const password = 'password123';
+
+      // Act & Assert
+      expect(
+        () => loginUseCase(email, password),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('should throw ArgumentError when password is too short', () async {
+      // Arrange
+      const email = 'test@example.com';
+      const password = '123';
+
+      // Act & Assert
+      expect(
+        () => loginUseCase(email, password),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
   });
 }

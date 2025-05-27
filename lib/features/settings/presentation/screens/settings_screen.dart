@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/providers/app_providers.dart';
+import '../../../../../core/router/app_router.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 @RoutePage()
 class SettingsScreen extends ConsumerWidget {
@@ -10,8 +13,9 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final isDarkMode = themeMode == ThemeMode.dark;
+    final appState = ref.watch(appProvider);
+    final authState = ref.watch(authProvider);
+    final isDarkMode = appState.themeMode == ThemeMode.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -25,8 +29,8 @@ class SettingsScreen extends ConsumerWidget {
             trailing: Switch(
               value: isDarkMode,
               onChanged: (value) {
-                ref.read(themeModeProvider.notifier).state = 
-                    value ? ThemeMode.dark : ThemeMode.light;
+                final newMode = value ? ThemeMode.dark : ThemeMode.light;
+                ref.read(appProvider.notifier).setThemeMode(newMode);
               },
             ),
           ),
@@ -71,37 +75,43 @@ class SettingsScreen extends ConsumerWidget {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('退出登录', style: TextStyle(color: Colors.red)),
-            onTap: () {
-              // 退出登录确认
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('确认退出登录'),
-                  content: const Text('您确定要退出登录吗？'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('取消'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        // 执行退出登录逻辑
-                        // 然后导航到登录页面
-                        // context.router.replace(const LoginRoute());
-                      },
-                      child: const Text('确定'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+          if (authState.isAuthenticated) ...[
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('退出登录', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                // 退出登录确认
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('确认退出登录'),
+                    content: const Text('您确定要退出登录吗？'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('取消'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          // 执行退出登录逻辑
+                          await ref.read(authProvider.notifier).logout();
+                          // 导航到登录页面
+                          if (context.mounted) {
+                            context.router.replace(const AuthRoute());
+                          }
+                        },
+                        child: const Text('确定'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );
   }
-} 
+}
