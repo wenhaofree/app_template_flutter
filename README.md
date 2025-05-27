@@ -2,6 +2,31 @@
 
 基于干净架构设计的Flutter应用程序脚手架，集成了常用依赖和最佳实践。
 
+## 环境要求
+
+### 开发环境
+- **macOS**: 15.5 24F74 (darwin-arm64)
+- **Flutter**: 3.32.0 (Channel stable)
+- **Dart**: 3.8.0
+- **Xcode**: 16.3 (Build 16E140)
+- **CocoaPods**: 1.16.2
+- **DevTools**: 2.45.1
+
+### 支持平台
+- ✅ iOS (iPhone 16 Plus Simulator)
+- ✅ macOS (desktop)
+- ✅ Web (Chrome)
+- ❌ Android (需要安装 Android Studio)
+
+## 版本信息
+
+| 组件 | 版本 | 说明 |
+|------|------|------|
+| Flutter | 3.32.0 | 稳定版本 |
+| Dart | 3.8.0 | 语言版本 |
+| Xcode | 16.3 | iOS/macOS 开发 |
+| SDK 约束 | ^3.7.2 | 最低 Dart SDK 版本 |
+
 ## 特性
 
 - 基于**干净架构**设计，代码组织清晰
@@ -82,17 +107,95 @@ flutter pub run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
-## 依赖
+## 故障排除
 
-主要依赖包括：
+### 常见问题
 
-- **状态管理**: flutter_riverpod, freezed
-- **路由**: auto_route
-- **网络**: dio, connectivity_plus
-- **存储**: shared_preferences, hive
-- **依赖注入**: get_it
-- **UI**: flutter_screenutil, flutter_svg
-- **工具**: intl, logger
+#### 1. CardTheme 类型错误
+**错误信息**: `The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'`
+
+**解决方案**:
+- 确保使用 `CardThemeData` 而不是 `CardTheme`
+- 此问题已在 Flutter 3.32.0 中修复
+
+#### 2. 构建失败
+**解决步骤**:
+```bash
+# 清理项目
+flutter clean
+
+# 重新获取依赖
+flutter pub get
+
+# 生成代码
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# 重新运行
+flutter run
+```
+
+#### 3. iOS 模拟器问题
+**检查步骤**:
+```bash
+# 检查可用设备
+flutter devices
+
+# 检查 Xcode 配置
+flutter doctor
+
+# 打开 iOS 模拟器
+open -a Simulator
+```
+
+#### 4. 依赖冲突
+**解决方案**:
+```bash
+# 查看过时的依赖
+flutter pub outdated
+
+# 升级依赖
+flutter pub upgrade
+
+# 解决冲突
+flutter pub deps
+```
+
+## 主要依赖
+
+### 生产依赖
+| 依赖包 | 版本 | 用途 |
+|--------|------|------|
+| flutter_riverpod | ^2.5.1 | 状态管理 |
+| freezed_annotation | ^2.4.1 | 不可变数据类 |
+| json_annotation | ^4.8.1 | JSON 序列化 |
+| auto_route | ^7.8.5 | 路由管理 |
+| dio | ^5.4.2 | 网络请求 |
+| connectivity_plus | ^5.0.2 | 网络状态监测 |
+| shared_preferences | ^2.2.2 | 简单本地存储 |
+| hive | ^2.2.3 | 高性能本地数据库 |
+| hive_flutter | ^1.1.0 | Hive Flutter 支持 |
+| get_it | ^7.6.7 | 依赖注入 |
+| flutter_screenutil | ^5.9.0 | 屏幕适配 |
+| flutter_svg | ^2.0.10+1 | SVG 图片支持 |
+| cached_network_image | ^3.3.1 | 网络图片缓存 |
+| shimmer | ^3.0.0 | 骨架屏效果 |
+| intl | ^0.20.0 | 国际化 |
+| logger | ^2.0.2+1 | 日志记录 |
+| path_provider | ^2.1.2 | 路径获取 |
+| device_info_plus | ^9.1.2 | 设备信息 |
+| package_info_plus | ^5.0.1 | 应用信息 |
+| url_launcher | ^6.2.5 | URL 启动器 |
+
+### 开发依赖
+| 依赖包 | 版本 | 用途 |
+|--------|------|------|
+| flutter_lints | ^5.0.0 | 代码规范检查 |
+| build_runner | ^2.4.8 | 代码生成器 |
+| freezed | ^2.4.7 | 不可变数据类生成 |
+| json_serializable | ^6.7.1 | JSON 序列化生成 |
+| auto_route_generator | ^7.3.2 | 路由代码生成 |
+| hive_generator | ^2.0.1 | Hive 适配器生成 |
+| flutter_gen_runner | ^5.4.0 | 资源代码生成 |
 
 ## 贡献
 
@@ -216,7 +319,7 @@ class YourModel with _$YourModel {
     required String name,
   }) = _YourModel;
 
-  factory YourModel.fromJson(Map<String, dynamic> json) => 
+  factory YourModel.fromJson(Map<String, dynamic> json) =>
       _$YourModelFromJson(json);
 }
 ```
@@ -368,6 +471,33 @@ flutter run
 3. 提交更改
 4. 推送到分支
 5. 创建 Pull Request
+
+## 更新日志
+
+### 2025-05-27
+#### 🐛 Bug 修复
+- **主题系统兼容性修复**: 修复了 Flutter 3.32.0 中 `CardTheme` 类型不兼容的问题
+  - 问题: `CardTheme` 类型无法赋值给 `CardThemeData?` 参数
+  - 解决方案: 将 `lib/core/theme/app_theme.dart` 中的 `CardTheme` 更改为 `CardThemeData`
+  - 影响文件: `lib/core/theme/app_theme.dart` (第55行和第109行)
+  - 状态: ✅ 已修复
+
+#### 📝 文档更新
+- **README 文档完善**: 添加了详细的环境要求、版本信息和依赖列表
+  - 新增环境要求说明 (Flutter 3.32.0, Xcode 16.3, Dart 3.8.0)
+  - 新增支持平台列表
+  - 新增详细的依赖版本表格
+  - 新增更新日志记录
+
+#### ⚠️ 已知问题
+- Android 开发环境未配置 (需要安装 Android Studio)
+- 部分依赖包有更新版本可用 (运行 `flutter pub outdated` 查看)
+
+#### 🔧 技术细节
+- **Flutter 版本兼容性**: 项目已适配 Flutter 3.32.0 最新稳定版
+- **Material 3 支持**: 使用 Material 3 设计系统
+- **主题系统**: 支持亮色/暗色主题切换
+- **代码生成**: 使用 build_runner 进行代码自动生成
 
 ## 许可证
 
